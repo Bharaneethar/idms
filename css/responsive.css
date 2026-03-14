@@ -1,0 +1,70 @@
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); z-index: 200; }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .main-content { margin-left: 0 !important; }
+  .header { left: 0 !important; }
+  .mobile-menu-btn { display: flex !important; }
+  .dashboard-charts { grid-template-columns: 1fr; }
+  .dashboard-bottom { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .page-content { padding: 16px; }
+  .dashboard-stats { grid-template-columns: 1fr; }
+  .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-header-actions { width: 100%; }
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .search-input-wrapper { max-width: 100%; }
+  .tabs { overflow-x: auto; }
+  .auth-card { padding: 28px 20px; }
+  .profile-header { flex-direction: column; text-align: center; }
+  .profile-meta { justify-content: center; flex-wrap: wrap; }
+  .welcome-banner { padding: 20px; }
+  .notification-dropdown { width: 300px; right: -60px; }
+  .toast { min-width: 280px; }
+  .header { padding: 0 16px; }
+  .table-pagination { flex-direction: column; gap: 8px; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .stat-card { padding: 18px; }
+  .stat-card-value { font-size: 1.4rem; }
+  .btn-lg { padding: 10px 20px; font-size: 0.9rem; }
+  h1 { font-size: 1.35rem; }
+}
+
+/* Mobile menu button (hidden on desktop) */
+.mobile-menu-btn {
+  display: none !important;
+  width: 38px; height: 38px;
+  border-radius: var(--radius-md);
+  border: none; background: transparent;
+  color: var(--slate-600); cursor: pointer;
+  align-items: center; justify-content: center;
+}
+
+/* Mobile overlay */
+.mobile-overlay {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); z-index: 199;
+}
+.mobile-overlay.show { display: block; }
+
+/* Print styles */
+@media print {
+  .sidebar, .header, .toast-container { display: none !important; }
+  .main-content { margin-left: 0 !important; }
+  .page-content { margin-top: 0; padding: 0; }
+  .card { box-shadow: none; border: 1px solid #ddd; }
+  .btn { display: none; }
+}

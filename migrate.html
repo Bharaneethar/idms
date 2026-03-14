@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDMS - Database Migration Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; padding: 40px; text-align: center; }
+    .card { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    h1 { color: #4338ca; }
+    button { background: #4f46e5; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 20px; transition: background 0.2s; }
+    button:hover { background: #4338ca; }
+    button:disabled { background: #cbd5e1; cursor: not-allowed; }
+    #log { text-align: left; background: #0f172a; color: #10b981; padding: 15px; border-radius: 8px; font-family: monospace; height: 300px; overflow-y: auto; margin-top: 20px; font-size: 13px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="card">
+    <h1>Database Migration</h1>
+    <p>This tool will automatically create the demo users and upload all 12 industries and their historical data into your live Supabase database.</p>
+    
+    <button id="start-btn" onclick="startMigration()">🚀 Start Migration</button>
+    
+    <div id="log">Waiting to start...</div>
+  </div>
+
+  <script src="js/mockData.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/migrate.js"></script>
+</body>
+</html>
