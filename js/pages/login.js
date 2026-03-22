@@ -2,6 +2,8 @@
    LOGIN PAGE
    ============================ */
 
+let currentLoginRole = 'industry';
+
 function renderLoginPage() {
   const app = document.getElementById('app');
   app.innerHTML = `
@@ -13,8 +15,14 @@ function renderLoginPage() {
           </div>
           <span class="auth-logo-text">IDMS Portal</span>
         </div>
-        <h2 class="auth-title">Welcome Back</h2>
-        <p class="auth-subtitle">Sign in to access the Industrial Data Management System</p>
+        
+        <div class="tabs" style="justify-content: center; margin-bottom: 24px;">
+          <button class="tab active" id="tab-industry" type="button" onclick="switchLoginRole('industry')">Industry</button>
+          <button class="tab" id="tab-admin" type="button" onclick="switchLoginRole('admin')">Admin</button>
+        </div>
+
+        <h2 class="auth-title" id="login-title">Industry Portal</h2>
+        <p class="auth-subtitle" id="login-subtitle">Sign in to manage your industrial data</p>
 
         <form id="login-form" onsubmit="handleLogin(event)">
           <div class="form-group">
@@ -32,23 +40,36 @@ function renderLoginPage() {
           </button>
         </form>
 
-        <div class="auth-footer">
+        <div class="auth-footer" id="login-footer">
           Don't have an account? <a onclick="Router.navigate('register')">Register here</a>
-        </div>
-
-        <div class="demo-credentials">
-          <h4>Demo Credentials</h4>
-          <p><strong>Admin:</strong> admin@idms.com / admin123</p>
-          <p><strong>Industry:</strong> industry@demo.com / industry123</p>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button class="demo-btn" onclick="demoLogin('admin')">Login as Admin</button>
-            <button class="demo-btn" onclick="demoLogin('industry')">Login as Industry</button>
-          </div>
         </div>
       </div>
     </div>
   `;
   if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function switchLoginRole(role) {
+  currentLoginRole = role;
+  
+  // Update tabs
+  document.getElementById('tab-industry').classList.toggle('active', role === 'industry');
+  document.getElementById('tab-admin').classList.toggle('active', role === 'admin');
+  
+  // Update text
+  const titleEl = document.getElementById('login-title');
+  const subtitleEl = document.getElementById('login-subtitle');
+  const footerEl = document.getElementById('login-footer');
+  
+  if (role === 'admin') {
+    titleEl.textContent = 'Admin Portal';
+    subtitleEl.textContent = 'Sign in to access the administrator dashboard';
+    if (footerEl) footerEl.style.display = 'none';
+  } else {
+    titleEl.textContent = 'Industry Portal';
+    subtitleEl.textContent = 'Sign in to manage your industrial data';
+    if (footerEl) footerEl.style.display = 'block';
+  }
 }
 
 async function handleLogin(e) {
@@ -72,22 +93,5 @@ async function handleLogin(e) {
     btn.disabled = false;
     btn.innerHTML = '<i data-lucide="log-in"></i> Sign In';
     if (typeof lucide !== 'undefined') lucide.createIcons();
-  }
-}
-
-async function demoLogin(role) {
-  const creds = role === 'admin'
-    ? { email: 'admin@idms.com', password: 'admin123' }
-    : { email: 'industry@demo.com', password: 'industry123' };
-
-  document.getElementById('login-email').value = creds.email;
-  document.getElementById('login-password').value = creds.password;
-
-  const result = await Auth.login(creds.email, creds.password);
-  if (result.success) {
-    Toast.success('Welcome!', `Signed in as ${result.user.name}`);
-    Router.navigate(result.user.role === 'admin' ? 'admin-dashboard' : 'industry-dashboard');
-  } else {
-    Toast.error('Demo Login Failed', result.error);
   }
 }

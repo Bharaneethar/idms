@@ -28,22 +28,22 @@ const Router = {
     window.addEventListener('hashchange', () => this._handleRoute());
     window.addEventListener('load', () => {
       if (!window.location.hash) {
-        window.location.hash = '#login';
+        window.location.hash = '#home';
       }
       this._handleRoute();
     });
   },
 
   async _handleRoute() {
-    const hash = window.location.hash.slice(1) || 'login';
+    const hash = window.location.hash.slice(1) || 'home';
     const path = hash.split('/')[0];
 
     if (this.routes[path]) {
       this.currentRoute = path;
       await this.routes[path]();
     } else {
-      // Default → login
-      this.navigate('login');
+      // Default → home
+      this.navigate('home');
     }
   }
 };

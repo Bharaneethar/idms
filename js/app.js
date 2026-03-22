@@ -6,6 +6,7 @@
   'use strict';
 
   // Register all routes
+  Router.register('home', renderHomePage);
   Router.register('login', renderLoginPage);
   Router.register('register', renderRegisterPage);
   Router.register('industry-dashboard', renderIndustryDashboard);
