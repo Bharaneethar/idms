@@ -61,8 +61,79 @@ function renderRegisterPage() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-function handleRegister(e) {
+async function handleRegister(e) {
   e.preventDefault();
-  Toast.success('Registration Successful!', 'Your industry account has been created. You can now sign in.');
-  setTimeout(() => Router.navigate('login'), 1500);
+  
+  const name = document.getElementById('reg-name').value;
+  const contact = document.getElementById('reg-contact').value;
+  const sector = document.getElementById('reg-sector').value;
+  const email = document.getElementById('reg-email').value;
+  const password = document.getElementById('reg-password').value;
+  const plot = document.getElementById('reg-plot').value;
+  
+  const btn = document.querySelector('#register-form button[type="submit"]');
+  const originalBtnContent = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="spinner"></i> Creating Account...';
+
+  try {
+    // 1. Create Auth User
+    const { data: authData, error: authError } = await SupabaseService.register(email, password, {
+        name: contact,
+        role: 'industry',
+        industry_name: name
+    });
+
+    if (authError) throw authError;
+    if (!authData.user) throw new Error("Failed to create user account.");
+
+    const userId = authData.user.id;
+
+    // 2. We don't need to manually insert into public.users because the trigger 
+    //    'on_auth_user_created' (from the seed/migrate script) handles it. But we 
+    //    need to make sure the user exists before creating the industry.
+    //    Let's wait a moment for the trigger to fire just in case.
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Wait for the user profile to be available (or insert it if trigger is missing)
+    const { data: existingUser } = await SupabaseService.getUserProfile(userId).catch(() => ({ data: null }));
+    
+    if (!existingUser) {
+        // Fallback: manually insert into public.users
+        const { error: userInsertError } = await supabaseClient.from('users').insert({
+            id: userId,
+            email: email,
+            role: 'industry',
+            name: contact
+        });
+        if (userInsertError) console.error("Fallback user insert failed:", userInsertError);
+    }
+
+    // 3. Create Industry Profile
+    const { error: indError } = await supabaseClient.from('industries').insert({
+        user_id: userId,
+        name: name,
+        plot_number: plot,
+        sector: sector,
+        contact_person: contact,
+        email: email,
+        phone: 'Not Provided',
+        status: 'Pending'
+    });
+
+    if (indError) {
+        console.error("Industry creation warning:", indError);
+        // We still treat it as success because the auth user was created, but log the error
+    }
+
+    Toast.success('Registration Successful!', 'Your industry account has been created. You can now sign in.');
+    setTimeout(() => Router.navigate('login'), 2000);
+    
+  } catch (error) {
+    console.error('Registration failed:', error);
+    Toast.error('Registration Failed', error.message || 'An error occurred during registration.');
+    btn.disabled = false;
+    btn.innerHTML = originalBtnContent;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
 }
