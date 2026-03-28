@@ -173,4 +173,24 @@ const Charts = {
     gradient.addColorStop(1, color + '05');
     return gradient;
   },
+
+  initHomeDemoCharts() {
+    const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+    
+    // Line Chart - Investment Trends
+    Charts.lineChart('demo-line-chart', months, [
+      { label: 'Domestic Investment (Cr)', data: [120, 150, 180, 220, 210, 280, 310, 350, 420, 480, 520, 580] },
+      { label: 'FDI (Cr)', data: [80, 90, 110, 150, 190, 240, 280, 310, 350, 410, 460, 510], borderColor: '#10b981' }
+    ]);
+
+    // Bar Chart - Employment
+    Charts.barChart('demo-bar-chart', ['North', 'South', 'West', 'Central'], [
+      { label: 'Direct Jobs', data: [45000, 85000, 35000, 25000] }
+    ]);
+
+    // Pie Chart - Sectors
+    Charts.doughnutChart('demo-pie-chart', ['Auto', 'Electronics', 'Textiles', 'Pharma', 'IT'], [35, 25, 15, 15, 10]);
+  }
 };
+
+window.initHomeDemoCharts = () => Charts.initHomeDemoCharts();

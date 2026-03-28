@@ -3,7 +3,6 @@
    ============================ */
 
 const Components = {
-  // Render the full app layout with sidebar + header + content
   async renderLayout(pageContent, activeNav) {
     const user = Auth.getUser();
     const role = user.role;
@@ -13,16 +12,17 @@ const Components = {
     const headerHTML = await this.renderHeader(user);
 
     app.innerHTML = `
-      <div class="app-layout">
+      <div class="flex bg-surface text-on-surface min-h-screen">
         ${this.renderSidebar(role, activeNav)}
-        <div class="main-content" id="main-content">
+        <div class="flex-1 md:ml-64 ml-0 min-h-screen flex flex-col transition-all duration-300">
           ${headerHTML}
-          <div class="page-content" id="page-content">
+          <main class="flex-grow p-4 md:p-8 space-y-8 max-w-[1600px] mx-auto w-full">
             ${pageContent}
-          </div>
+          </main>
+          ${this.renderFooter()}
         </div>
-        <div class="mobile-overlay" id="mobile-overlay" onclick="Components.closeMobileSidebar()"></div>
       </div>
+      <div class="mobile-overlay fixed inset-0 bg-black/50 z-40 hidden" id="mobile-overlay" onclick="Components.closeMobileSidebar()"></div>
     `;
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -30,72 +30,61 @@ const Components = {
   },
 
   renderSidebar(role, activeNav) {
+    const user = Auth.getUser();
+    
     const industryNav = [
-      { section: 'Main', items: [
-        { id: 'industry-dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
-        { id: 'industry-profile', icon: 'building-2', label: 'My Profile' },
-      ]},
-      { section: 'Data', items: [
-        { id: 'data-submission', icon: 'file-plus-2', label: 'Submit Data' },
-        { id: 'submission-history', icon: 'history', label: 'Submission History' },
-      ]},
-      { section: 'Other', items: [
-        { id: 'notifications-page', icon: 'bell', label: 'Notifications' },
-      ]},
+      { id: 'industry-dashboard', icon: 'dashboard', label: 'Dashboard' },
+      { id: 'industry-profile', icon: 'factory', label: 'My Profile' },
+      { id: 'data-submission', icon: 'file_upload', label: 'Submit Data' },
+      { id: 'submission-history', icon: 'history', label: 'Submission History' },
+      { id: 'notifications-page', icon: 'notifications', label: 'Notifications' },
     ];
 
     const adminNav = [
-      { section: 'Overview', items: [
-        { id: 'admin-dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
-        { id: 'industry-list', icon: 'factory', label: 'Industries' },
-      ]},
-      { section: 'Analytics', items: [
-        { id: 'reports', icon: 'bar-chart-3', label: 'Reports & Analytics' },
-        { id: 'compliance', icon: 'shield-check', label: 'Compliance' },
-      ]},
-      { section: 'Other', items: [
-        { id: 'notifications-page', icon: 'bell', label: 'Notifications' },
-      ]},
+      { id: 'admin-dashboard', icon: 'dashboard', label: 'Dashboard' },
+      { id: 'industry-list', icon: 'factory', label: 'Industries' },
+      { id: 'reports', icon: 'query_stats', label: 'Analytics' },
+      { id: 'compliance', icon: 'verified', label: 'Compliance' },
+      { id: 'city-directory', icon: 'map', label: 'Directory' },
+      { id: 'notifications-page', icon: 'notifications', label: 'Notifications' },
     ];
 
-    const navSections = role === 'admin' ? adminNav : industryNav;
+    const navItems = role === 'admin' ? adminNav : industryNav;
 
     let navHTML = '';
-    navSections.forEach(section => {
-      navHTML += `<div class="nav-section-label">${section.section}</div>`;
-      section.items.forEach(item => {
-        const isActive = item.id === activeNav ? 'active' : '';
-        navHTML += `
-          <div class="nav-item ${isActive}" onclick="Router.navigate('${item.id}')" id="nav-${item.id}">
-            <i data-lucide="${item.icon}"></i>
-            <span class="nav-item-text">${item.label}</span>
-          </div>
-        `;
-      });
+    navItems.forEach(item => {
+      const isActive = item.id === activeNav;
+      const activeClass = isActive ? 'bg-[#1e293b] text-blue-400 font-semibold' : 'text-slate-400 hover:text-white hover:bg-[#1e293b]/50';
+      navHTML += `
+        <a class="${activeClass} mx-2 px-4 py-3 flex items-center gap-3 rounded-lg transition-all duration-200 ease-in-out cursor-pointer" onclick="Components.closeMobileSidebar(); Router.navigate('${item.id}')">
+          <span class="material-symbols-outlined text-[1.25rem]">${item.icon}</span>
+          <span class="font-['Inter'] tracking-[-0.01em] text-[0.875rem]">${item.label}</span>
+        </a>
+      `;
     });
 
-    const user = Auth.getUser();
     return `
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="sidebar-logo">
-            <i data-lucide="factory"></i>
-          </div>
-          <div>
-            <div class="sidebar-title">IDMS</div>
-            <div class="sidebar-subtitle">Industrial Data Mgmt</div>
-          </div>
+      <aside class="fixed left-0 top-0 h-full w-64 z-50 bg-[#0f172a] flex flex-col py-6 shadow-xl transition-transform duration-300 -translate-x-full md:translate-x-0" id="sidebar">
+        <div class="px-6 mb-10">
+          <h1 class="text-white font-semibold text-base">${role === 'admin' ? 'Admin Portal' : 'Industry Portal'}</h1>
+          <p class="text-slate-400 text-xs mt-1">IDMS Control Center</p>
         </div>
-        <nav class="sidebar-nav">
+        <nav class="flex-1 space-y-1">
           ${navHTML}
         </nav>
-        <div class="sidebar-footer">
-          <div class="sidebar-user">
-            <div class="sidebar-user-avatar">${user.avatar}</div>
-            <div class="sidebar-user-info">
-              <div class="sidebar-user-name">${user.name}</div>
-              <div class="sidebar-user-role">${role === 'admin' ? 'Administrator' : 'Industry User'}</div>
-            </div>
+        <div class="px-4 mt-auto">
+          <button class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-medium text-sm transition-all duration-200 active:scale-95" onclick="Router.navigate('${role === 'admin' ? 'reports' : 'data-submission'}')">
+            ${role === 'admin' ? 'New Report' : 'Submit Data'}
+          </button>
+          <div class="mt-6 border-t border-slate-800 pt-4">
+            <a class="text-slate-400 hover:text-white px-4 py-2 flex items-center gap-3 text-sm transition-colors cursor-pointer" onclick="Router.navigate('home')">
+              <span class="material-symbols-outlined text-[1.25rem]">contact_support</span>
+              Support
+            </a>
+            <a class="text-slate-400 hover:text-white px-4 py-2 flex items-center gap-3 text-sm transition-colors cursor-pointer" onclick="Auth.logout()">
+              <span class="material-symbols-outlined text-[1.25rem]">logout</span>
+              Logout
+            </a>
           </div>
         </div>
       </aside>
@@ -108,65 +97,101 @@ const Components = {
     const unreadCount = notifications.filter(n => !n.read).length;
 
     return `
-      <header class="header" id="header">
-        <div class="header-left">
-          <button class="mobile-menu-btn header-icon-btn" onclick="Components.toggleMobileSidebar()" id="mobile-menu-btn">
-            <i data-lucide="menu"></i>
+      <header class="h-16 bg-[#0f172a]/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-8 border-b border-white/5 shadow-sm">
+        <div class="flex items-center gap-8">
+          <button class="md:hidden text-slate-300 p-2" onclick="Components.toggleMobileSidebar()">
+            <span class="material-symbols-outlined">menu</span>
           </button>
-          <div class="header-breadcrumb">
-            <i data-lucide="home" style="width:14px;height:14px"></i>
-            / <span id="header-page-title">Dashboard</span>
+          <div class="flex items-center gap-2 text-slate-400 text-xs font-medium">
+            <span class="material-symbols-outlined text-sm">home</span>
+            / <span id="header-page-title" class="text-slate-200 font-semibold uppercase tracking-wider">Dashboard</span>
           </div>
         </div>
-        <div class="header-right">
-          <div style="position:relative">
-            <button class="header-icon-btn" onclick="Components.toggleNotifications()" id="notification-btn">
-              <i data-lucide="bell"></i>
-              ${unreadCount > 0 ? '<span class="badge-dot"></span>' : ''}
+        <div class="flex items-center gap-4">
+          <div class="relative hidden sm:block">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">language</span>
+            <select class="bg-slate-800/50 text-slate-200 text-xs border-none rounded-lg pl-9 pr-8 py-1.5 focus:ring-0 appearance-none cursor-pointer">
+              <option>English</option>
+              <option>Tamil</option>
+            </select>
+          </div>
+          <button class="p-2 text-slate-300 hover:bg-slate-800/50 rounded-full transition-all relative" onclick="Components.toggleNotifications()" id="notification-btn">
+            <span class="material-symbols-outlined">notifications</span>
+            ${unreadCount > 0 ? '<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>' : ''}
+          </button>
+          
+          <div class="relative">
+            <button class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-slate-800/50 transition-all" onclick="Components.toggleUserMenu()" id="user-menu-btn">
+              <div class="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-xs shadow-inner">
+                ${user.avatar || user.name.charAt(0)}
+              </div>
+              <span class="text-sm font-medium text-slate-200 hidden md:block">${user.name}</span>
+              <span class="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
             </button>
-            <div class="notification-dropdown" id="notification-dropdown">
-              <div class="notification-dropdown-header">
-                <h4>Notifications</h4>
-                ${unreadCount > 0 ? `<span class="badge badge-primary">${unreadCount} new</span>` : ''}
+            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl hidden overflow-hidden z-50">
+              <div class="p-4 border-b border-slate-700">
+                <p class="text-sm font-semibold text-white truncate">${user.name}</p>
+                <p class="text-xs text-slate-400 truncate">${user.email}</p>
               </div>
-              <div class="notification-list">
-                ${notifications.length === 0 ? '<p style="padding:20px;text-align:center;color:var(--slate-400)">No notifications</p>' : notifications.slice(0, 5).map(n => `
-                  <div class="notification-item ${n.read ? '' : 'unread'}" onclick="Router.navigate('notifications-page')">
-                    <div class="notification-icon-wrap ${n.type}">
-                      <i data-lucide="${n.type === 'reminder' ? 'clock' : n.type === 'alert' ? 'alert-triangle' : 'check-circle-2'}" style="width:16px;height:16px"></i>
-                    </div>
-                    <div class="notification-text">
-                      <p><strong>${n.title}</strong></p>
-                      <div class="notification-time">${n.time}</div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-              <div class="notification-dropdown-footer">
-                <a onclick="Router.navigate('notifications-page')">View all notifications</a>
+              <div class="py-1">
+                <a class="flex items-center gap-3 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-white transition-colors cursor-pointer" onclick="Router.navigate('${role === 'admin' ? 'admin-dashboard' : 'industry-profile'}')">
+                  <span class="material-symbols-outlined text-lg">person</span> Profile
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2 text-sm text-error hover:bg-slate-800/50 transition-colors cursor-pointer" onclick="Auth.logout()">
+                  <span class="material-symbols-outlined text-lg">logout</span> Sign Out
+                </a>
               </div>
             </div>
           </div>
-          <div style="position:relative">
-            <button class="header-user-btn" onclick="Components.toggleUserMenu()" id="user-menu-btn">
-              <div class="avatar">${user.avatar || user.name.charAt(0)}</div>
-              <span class="name">${user.name}</span>
-              <i data-lucide="chevron-down" style="width:14px;height:14px;color:var(--slate-400)"></i>
-            </button>
-            <div class="user-dropdown" id="user-dropdown">
-              <div class="user-dropdown-item" onclick="Router.navigate('${role === 'admin' ? 'admin-dashboard' : 'industry-profile'}')">
-                <i data-lucide="user" style="width:16px;height:16px"></i>
-                Profile
+        </div>
+
+        <!-- Notification Dropdown -->
+        <div id="notification-dropdown" class="absolute right-20 top-16 w-80 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl hidden overflow-hidden z-50">
+          <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+            <h4 class="text-sm font-bold text-white">Notifications</h4>
+            ${unreadCount > 0 ? `<span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold rounded-full uppercase">${unreadCount} new</span>` : ''}
+          </div>
+          <div class="max-h-96 overflow-y-auto">
+            ${notifications.length === 0 ? '<div class="p-8 text-center text-slate-500 text-sm">No new alerts</div>' : notifications.slice(0, 5).map(n => `
+              <div class="p-4 border-b border-slate-700/50 hover:bg-slate-800/50 transition-colors cursor-pointer" onclick="Router.navigate('notifications-page')">
+                <div class="flex gap-3">
+                  <div class="h-8 w-8 rounded-lg bg-${n.type === 'reminder' ? 'amber' : n.type === 'alert' ? 'red' : 'green'}-500/20 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-${n.type === 'reminder' ? 'amber' : n.type === 'alert' ? 'red' : 'green'}-400 text-lg">
+                      ${n.type === 'reminder' ? 'alarm' : n.type === 'alert' ? 'warning' : 'check_circle'}
+                    </span>
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-sm font-medium text-slate-200 leading-snug">${n.title}</p>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">${n.time}</p>
+                  </div>
+                </div>
               </div>
-              <div class="user-dropdown-divider"></div>
-              <div class="user-dropdown-item danger" onclick="Auth.logout()">
-                <i data-lucide="log-out" style="width:16px;height:16px"></i>
-                Sign Out
-              </div>
-            </div>
+            `).join('')}
+          </div>
+          <div class="p-3 text-center border-t border-slate-700">
+            <a class="text-xs font-bold text-blue-400 hover:text-blue-300 cursor-pointer" onclick="Router.navigate('notifications-page')">View All Systems</a>
           </div>
         </div>
       </header>
+    `;
+  },
+
+  renderFooter() {
+    return `
+      <footer class="w-full border-t border-slate-800 bg-[#0f172a] mt-auto">
+        <div class="max-w-7xl mx-auto px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="space-y-1 text-center md:text-left">
+            <p class="text-white font-bold text-sm">SIPCOT IDMS</p>
+            <p class="font-['Inter'] text-[0.6875rem] font-semibold uppercase tracking-wider text-slate-500">© 2026 SIPCOT TAMIL NADU. ALL RIGHTS RESERVED.</p>
+          </div>
+          <div class="flex gap-6">
+            <a class="font-['Inter'] text-[0.6875rem] font-semibold uppercase tracking-wider text-slate-500 hover:text-blue-400 transition-colors cursor-pointer">Privacy</a>
+            <a class="font-['Inter'] text-[0.6875rem] font-semibold uppercase tracking-wider text-slate-500 hover:text-blue-400 transition-colors cursor-pointer">Terms</a>
+            <a class="font-['Inter'] text-[0.6875rem] font-semibold uppercase tracking-wider text-slate-500 hover:text-blue-400 transition-colors cursor-pointer">Security</a>
+            <a class="font-['Inter'] text-[0.6875rem] font-semibold uppercase tracking-wider text-slate-500 hover:text-blue-400 transition-colors cursor-pointer" onclick="Router.navigate('home')">Support</a>
+          </div>
+        </div>
+      </footer>
     `;
   },
 
@@ -192,15 +217,28 @@ const Components = {
   toggleMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('mobile-overlay');
-    sidebar.classList.toggle('mobile-open');
-    overlay.classList.toggle('show');
+    const isOpen = sidebar.classList.contains('translate-x-0');
+    
+    if (isOpen) {
+      sidebar.classList.remove('translate-x-0');
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    } else {
+      sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
+      overlay.classList.remove('hidden');
+    }
+    document.body.style.overflow = !isOpen ? 'hidden' : '';
   },
 
   closeMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('mobile-overlay');
-    sidebar.classList.remove('mobile-open');
-    overlay.classList.remove('show');
+    if (!sidebar) return;
+    sidebar.classList.remove('translate-x-0');
+    sidebar.classList.add('-translate-x-full');
+    overlay && overlay.classList.add('hidden');
+    document.body.style.overflow = '';
   },
 
   _bindHeaderEvents() {
@@ -221,18 +259,20 @@ const Components = {
   },
 
   // Reusable stat card
-  statCard(icon, iconClass, value, label, trend, trendDir, delay) {
+  statCard(icon, colorClass, value, label, trend, trendDir, delay) {
+    const trendColor = trendDir === 'up' ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50';
+    const trendIcon = trendDir === 'up' ? 'trending_up' : 'trending_down';
+    
     return `
-      <div class="stat-card stagger-${delay}" style="animation-delay: ${delay * 0.06}s">
-        <div class="stat-card-icon ${iconClass}">
-          <i data-lucide="${icon}"></i>
+      <div class="bg-surface-container-lowest p-6 rounded-2xl border border-white/5 transition-all hover:shadow-xl hover:shadow-black/5 stagger-${delay}" style="animation-delay: ${delay * 0.06}s">
+        <div class="flex items-center justify-between mb-4">
+          <span class="p-2 bg-blue-50 text-blue-600 rounded-xl material-symbols-outlined">${icon}</span>
+          ${trend ? `<span class="text-[10px] font-bold uppercase tracking-wide ${trendColor} px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span class="material-symbols-outlined text-[10px]">${trendIcon}</span> ${trend}
+          </span>` : ''}
         </div>
-        <div class="stat-card-value">${value}</div>
-        <div class="stat-card-label">${label}</div>
-        ${trend ? `<div class="stat-card-trend ${trendDir}">
-          <i data-lucide="${trendDir === 'up' ? 'trending-up' : 'trending-down'}" style="width:14px;height:14px"></i>
-          ${trend}
-        </div>` : ''}
+        <p class="text-on-surface-variant text-[0.6875rem] font-semibold uppercase tracking-wider">${label}</p>
+        <h3 class="text-3xl font-bold tracking-[-0.04em] mt-1">${value}</h3>
       </div>
     `;
   },
@@ -240,62 +280,86 @@ const Components = {
   // Reusable page header
   pageHeader(title, subtitle, actions) {
     return `
-      <div class="page-header">
-        <div class="page-header-left">
-          <h1>${title}</h1>
-          ${subtitle ? `<p>${subtitle}</p>` : ''}
+      <div class="flex justify-between items-end mb-8">
+        <div>
+          <h2 class="text-[1.75rem] font-semibold tracking-[-0.02em] text-on-surface">${title}</h2>
+          ${subtitle ? `<p class="text-on-surface-variant text-sm mt-1">${subtitle}</p>` : ''}
         </div>
-        ${actions ? `<div class="page-header-actions">${actions}</div>` : ''}
+        ${actions ? `<div class="flex gap-3">${actions}</div>` : ''}
       </div>
     `;
   },
 
   // Badge helper
   statusBadge(status) {
-    const map = {
-      'Active': 'badge-success',
-      'Inactive': 'badge-danger',
-      'Pending': 'badge-warning',
+    const colorMap = {
+      'Active': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      'Inactive': 'bg-red-50 text-red-700 border-red-200',
+      'Pending': 'bg-amber-50 text-amber-700 border-amber-200',
+      'Under Construction': 'bg-blue-50 text-blue-700 border-blue-200',
+      'Compliance Warning': 'bg-red-50 text-red-700 border-red-200'
     };
-    return `<span class="badge ${map[status] || 'badge-neutral'}">${status}</span>`;
+    const defaultColor = 'bg-slate-50 text-slate-700 border-slate-200';
+    const colorClass = colorMap[status] || defaultColor;
+    
+    return `
+      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full ${colorClass} text-[10px] font-bold uppercase tracking-wide border">
+        <span class="h-1 w-1 rounded-full bg-current"></span> ${status}
+      </span>
+    `;
   },
 
   // Table with pagination
   dataTable(headers, rows, options = {}) {
-    const { page = 1, perPage = 8, onRowClick } = options;
+    const { page = 1, perPage = 8 } = options;
     const totalPages = Math.ceil(rows.length / perPage);
     const start = (page - 1) * perPage;
     const pageRows = rows.slice(start, start + perPage);
 
-    let html = `
-      <div class="card">
-        <div class="data-table-wrapper">
-          <table class="data-table">
+    return `
+      <div class="bg-surface-container-lowest rounded-2xl shadow-black/5 shadow-sm overflow-hidden min-w-full">
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse text-left">
             <thead>
-              <tr>
-                ${headers.map(h => `<th>${h}</th>`).join('')}
+              <tr class="bg-surface-container-low/50">
+                ${headers.map((h, i) => `
+                  <th class="${i === 0 ? 'px-8' : i === headers.length - 1 ? 'px-8 text-right' : 'px-6'} py-5 text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant">
+                    ${h}
+                  </th>
+                `).join('')}
               </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-surface-container">
               ${pageRows.length === 0 ? `
-                <tr><td colspan="${headers.length}" style="text-align:center;padding:40px;color:var(--slate-400)">No data found</td></tr>
+                <tr><td colspan="${headers.length}" class="px-8 py-20 text-center text-on-surface-variant">No records found matching your criteria.</td></tr>
               ` : pageRows.join('')}
             </tbody>
           </table>
         </div>
         ${totalPages > 1 ? `
-          <div class="table-pagination">
-            <span>Showing ${start + 1} to ${Math.min(start + perPage, rows.length)} of ${rows.length}</span>
-            <div class="table-pagination-btns">
-              ${Array.from({length: totalPages}, (_, i) => `
-                <button class="${i + 1 === page ? 'active' : ''}" onclick="window._tablePage && window._tablePage(${i + 1})">${i + 1}</button>
-              `).join('')}
+          <div class="px-8 py-6 bg-surface-container-low/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-[0.8125rem] text-on-surface-variant font-medium">
+              Showing <span class="text-on-primary-fixed">${start + 1}-${Math.min(start + perPage, rows.length)}</span> of <span class="text-on-primary-fixed">${rows.length}</span> entries
+            </p>
+            <div class="flex gap-2">
+              <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-lowest text-on-primary-fixed hover:bg-surface-container-high transition-colors disabled:opacity-30" 
+                      ${page === 1 ? 'disabled' : ''} onclick="window._tablePage && window._tablePage(${page - 1})">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              ${Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                const p = i + 1;
+                const active = p === page ? 'bg-primary-container text-white' : 'bg-surface-container-lowest text-on-primary-fixed hover:bg-surface-container-high';
+                return `<button class="w-10 h-10 flex items-center justify-center rounded-xl ${active} font-bold text-[0.875rem] transition-all" onclick="window._tablePage && window._tablePage(${p})">${p}</button>`;
+              }).join('')}
+              <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-lowest text-on-primary-fixed hover:bg-surface-container-high transition-colors disabled:opacity-30"
+                      ${page === totalPages ? 'disabled' : ''} onclick="window._tablePage && window._tablePage(${page + 1})">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
             </div>
           </div>
         ` : ''}
       </div>
     `;
-    return html;
   },
 
   // CSV Export

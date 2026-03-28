@@ -18,6 +18,8 @@
   Router.register('industry-detail', renderIndustryDetail);
   Router.register('reports', renderReports);
   Router.register('compliance', renderCompliance);
+  Router.register('non-compliance', renderNonCompliance);
+  Router.register('city-directory', renderCityDirectory);
   Router.register('notifications-page', renderNotificationsPage);
 
   // Init router

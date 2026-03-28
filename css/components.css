@@ -2,6 +2,21 @@
    UI COMPONENTS - Part 1: Buttons, Cards, Stats
    ============================ */
 
+:root {
+  --sipcot-purple: #2d3748;
+  --sipcot-teal: #008080;
+  --sipcot-blue: #3182ce;
+  --sipcot-red: #dc2626;
+  --sipcot-light: #f0f9ff;
+}
+
+.mega-menu {
+  z-index: 9999 !important;
+}
+
+
+
+
 /* Buttons */
 .btn {
   display: inline-flex;

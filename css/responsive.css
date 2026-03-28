@@ -5,11 +5,16 @@
 }
 
 @media (max-width: 1024px) {
-  .sidebar { transform: translateX(-100%); z-index: 200; }
-  .sidebar.mobile-open { transform: translateX(0); }
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 200;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sidebar.mobile-open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.18); }
   .main-content { margin-left: 0 !important; }
   .header { left: 0 !important; }
   .mobile-menu-btn { display: flex !important; }
+  .sidebar-close-btn { display: flex !important; }
   .dashboard-charts { grid-template-columns: 1fr; }
   .dashboard-bottom { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
@@ -40,6 +45,10 @@
   .stat-card-value { font-size: 1.4rem; }
   .btn-lg { padding: 10px 20px; font-size: 0.9rem; }
   h1 { font-size: 1.35rem; }
+  /* Hide username text in header on very small screens */
+  .header-user-btn .name { display: none; }
+  /* Fix notification dropdown overflow on small screens */
+  .notification-dropdown { width: 280px; right: -50px; }
 }
 
 /* Mobile menu button (hidden on desktop) */
@@ -52,11 +61,31 @@
   align-items: center; justify-content: center;
 }
 
+/* Sidebar close button — only visible on mobile */
+.sidebar-close-btn {
+  display: none !important;
+  margin-left: auto;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: inherit;
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.sidebar-close-btn:hover { background: rgba(255,255,255,0.22); }
+.sidebar-close-btn i { width: 18px; height: 18px; }
+
 /* Mobile overlay */
 .mobile-overlay {
   display: none;
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5); z-index: 199;
+  background: rgba(0,0,0,0.5);
+  z-index: 199;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.28s;
 }
 .mobile-overlay.show { display: block; }
 

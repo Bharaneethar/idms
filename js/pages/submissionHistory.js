@@ -54,29 +54,41 @@ async function renderSubmissionHistory() {
   `);
 
   const content = `
-    ${Components.pageHeader('Submission History', 'View all your past data submissions synced from the cloud', `
-      <button class="btn btn-secondary" onclick="exportHistoryData()">
-        <i data-lucide="download"></i> Export CSV
+    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div>
+        <h1 class="text-[2.5rem] font-bold tracking-tight text-on-primary-fixed leading-none mb-3">Submission Archive</h1>
+        <p class="text-on-surface-variant text-sm">Full chronological record of your industrial data submissions synced with the central repository.</p>
+      </div>
+      <button class="px-6 py-3 bg-on-primary-fixed text-white font-bold rounded-2xl text-xs uppercase tracking-widest hover:bg-secondary transition-all shadow-lg shadow-blue-500/10 flex items-center gap-2" onclick="exportHistoryData()">
+        <span class="material-symbols-outlined text-[18px]">cloud_download</span> Export Records
       </button>
-    `)}
-
-    <div class="filter-bar mb-4">
-      <select class="filter-select" onchange="historyFilter=this.value;historyPage=1;renderSubmissionHistory()">
-        <option value="all" ${historyFilter==='all'?'selected':''}>All Categories</option>
-        <option value="Investment" ${historyFilter==='Investment'?'selected':''}>Investment</option>
-        <option value="Employment" ${historyFilter==='Employment'?'selected':''}>Employment</option>
-        <option value="Utilities" ${historyFilter==='Utilities'?'selected':''}>Utilities</option>
-        <option value="Business" ${historyFilter==='Business'?'selected':''}>Business</option>
-        <option value="CSR" ${historyFilter==='CSR'?'selected':''}>CSR</option>
-      </select>
-      <span class="text-sm text-slate-500">${filtered.length} records found</span>
     </div>
 
-    ${Components.dataTable(
-      ['Year', 'Category', 'Details', 'Synced On', 'Status'],
-      rows,
-      { page: historyPage, perPage: 8 }
-    )}
+    <!-- Category Filter Tabs -->
+    <div class="flex flex-wrap gap-4 mb-8 p-1.5 bg-surface-container-low rounded-2xl w-fit">
+      <button class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${historyFilter === 'all' ? 'bg-white text-secondary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}" onclick="historyFilter='all';historyPage=1;renderSubmissionHistory()">All Categories</button>
+      ${['Investment', 'Employment', 'Utilities', 'Business', 'CSR'].map(cat => `
+        <button class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${historyFilter === cat ? 'bg-white text-secondary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}" onclick="historyFilter='${cat}';historyPage=1;renderSubmissionHistory()">
+          ${cat}
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-3xl border border-white/5 shadow-sm overflow-hidden mb-12">
+      <div class="px-8 py-6 border-b border-surface-container-low flex justify-between items-center bg-surface-container-low/30">
+        <h3 class="text-lg font-bold text-on-surface">Data Log <span class="text-xs font-medium text-on-surface-variant ml-2">${filtered.length} entries found</span></h3>
+        <div class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Synced with cloud
+        </div>
+      </div>
+      <div class="p-2">
+        ${Components.dataTable(
+          ['Year', 'Resource Category', 'Record Attribution', 'Submission Date', 'Verification'],
+          rows,
+          { page: historyPage, perPage: 10 }
+        )}
+      </div>
+    </div>
   `;
 
   await Components.renderLayout(content, 'submission-history');

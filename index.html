@@ -1,46 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Industrial Data Management & Monitoring System</title>
-    <meta name="description" content="A modern digital platform for industrial parks to manage, monitor, and analyze industrial performance data.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/pages.css">
-    <link rel="stylesheet" href="css/responsive.css">
-</head>
-<body>
-    <div id="app">
-        <!-- App content injected by JS -->
-    </div>
 
-    <!-- Core scripts -->
-    <script src="js/supabase.js"></script>
-    <script src="js/mockData.js"></script>
-    <script src="js/router.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/notifications.js"></script>
-    <script src="js/components.js"></script>
-    <script src="js/charts.js"></script>
-    <script src="js/pages/home.js"></script>
-    <script src="js/pages/login.js"></script>
-    <script src="js/pages/register.js"></script>
-    <script src="js/pages/industryDashboard.js"></script>
-    <script src="js/pages/industryProfile.js"></script>
-    <script src="js/pages/dataSubmission.js"></script>
-    <script src="js/pages/submissionHistory.js"></script>
-    <script src="js/pages/adminDashboard.js"></script>
-    <script src="js/pages/industryList.js"></script>
-    <script src="js/pages/industryDetail.js"></script>
-    <script src="js/pages/reports.js"></script>
-    <script src="js/pages/compliance.js"></script>
-    <script src="js/pages/notificationsPage.js"></script>
-    <script src="js/app.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Industrial Data Management & Monitoring System</title>
+  <meta name="description"
+    content="A modern digital platform for industrial parks to manage, monitor, and analyze industrial performance data.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#131b2e",
+            "surface-dim": "#d8dadc",
+            "on-tertiary-container": "#009668",
+            "on-tertiary-fixed": "#002113",
+            "on-primary": "#ffffff",
+            "on-background": "#191c1e",
+            "primary-fixed-dim": "#bec6e0",
+            "outline-variant": "#c6c6cd",
+            "inverse-surface": "#2d3133",
+            "on-error-container": "#93000a",
+            "surface-container": "#eceef0",
+            "secondary-fixed-dim": "#adc6ff",
+            "outline": "#76777d",
+            "surface-container-high": "#e6e8ea",
+            "tertiary": "#000000",
+            "surface-container-low": "#f2f4f6",
+            "secondary": "#0058be",
+            "primary": "#000000",
+            "on-primary-fixed-variant": "#3f465c",
+            "inverse-primary": "#bec6e0",
+            "on-primary-container": "#7c839b",
+            "on-secondary-fixed": "#001a42",
+            "primary-fixed": "#dae2fd",
+            "on-tertiary-fixed-variant": "#005236",
+            "on-secondary-container": "#fefcff",
+            "surface-bright": "#f7f9fb",
+            "surface-variant": "#e0e3e5",
+            "error-container": "#ffdad6",
+            "primary-container": "#131b2e",
+            "on-surface": "#191c1e",
+            "tertiary-fixed": "#6ffbbe",
+            "tertiary-container": "#002113",
+            "on-secondary-fixed-variant": "#004395",
+            "on-secondary": "#ffffff",
+            "surface-tint": "#565e74",
+            "error": "#ba1a1a",
+            "surface-container-highest": "#e0e3e5",
+            "on-surface-variant": "#45464d",
+            "tertiary-fixed-dim": "#4edea3",
+            "surface": "#f7f9fb",
+            "background": "#f7f9fb",
+            "on-error": "#ffffff",
+            "secondary-fixed": "#d8e2ff",
+            "secondary-container": "#2170e4",
+            "inverse-on-surface": "#eff1f3",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary": "#ffffff",
+            sipcot: {
+              blue: '#1e3a8a',
+              red: '#dc2626',
+              light: '#f0f9ff'
+            }
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- App content injected by JS -->
+  </div>
+
+  <!-- Core scripts -->
+  <script src="js/supabase.js"></script>
+  <script src="js/mockData.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/deadlines.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/pages/home.js"></script>
+  <script src="js/pages/login.js"></script>
+  <script src="js/pages/register.js"></script>
+  <script src="js/pages/industryDashboard.js"></script>
+  <script src="js/pages/industryProfile.js"></script>
+  <script src="js/pages/dataSubmission.js"></script>
+  <script src="js/pages/submissionHistory.js"></script>
+  <script src="js/pages/adminDashboard.js"></script>
+  <script src="js/pages/industryList.js"></script>
+  <script src="js/pages/industryDetail.js"></script>
+  <script src="js/pages/reports.js"></script>
+  <script src="js/pages/compliance.js"></script>
+  <script src="js/pages/nonCompliance.js"></script>
+  <script src="js/pages/cityDirectory.js"></script>
+  <script src="js/pages/notificationsPage.js"></script>
+  <script src="js/app.js"></script>
 </body>
+
 </html>

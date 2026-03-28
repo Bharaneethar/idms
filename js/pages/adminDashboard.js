@@ -25,61 +25,72 @@ async function renderAdminDashboard() {
     console.log('Admin Dashboard: Rendering layout...');
 
     const content = `
-      ${Components.pageHeader('System Overview', 'Industrial Park Performance Monitoring')}
+      ${Components.pageHeader('Operational Overview', 'Real-time monitoring across all industrial complexes.', `
+        <button class="px-4 py-2 bg-surface-container-high text-on-primary-fixed font-medium rounded-2xl text-sm transition-all hover:bg-surface-container-highest">Export Data</button>
+        <button class="px-4 py-2 bg-[#0f172a] text-white font-medium rounded-2xl text-sm transition-all hover:bg-secondary active:scale-95 flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">add</span> New Complex
+        </button>
+      `)}
 
-      <div class="dashboard-stats">
-        ${Components.statCard('building', 'indigo', industryData.length, 'Total Industries', activeCount + ' currently active', '', 1)}
-        ${Components.statCard('indian-rupee', 'emerald', DataService.formatCurrency(totalInv), 'Total Investment', 'Across all sectors', '', 2)}
-        ${Components.statCard('users', 'amber', DataService.formatNumber(totalEmp), 'Total Employment', 'Permanent & Contract', '', 3)}
-        ${Components.statCard('droplets', 'blue', DataService.formatNumber(avgWater) + ' KL', 'Water Usage', 'Cumulative usage', '', 4)}
+      <div class="stats-grid mb-8">
+        ${Components.statCard('factory', 'blue', industryData.length, 'Total Industries', '+4.2%', 'up', 1)}
+        ${Components.statCard('payments', 'emerald', DataService.formatCurrency(totalInv), 'Total Investment', '+12.8%', 'up', 2)}
+        ${Components.statCard('groups', 'amber', DataService.formatNumber(totalEmp), 'Total Employment', '+8.1%', 'up', 3)}
+        ${Components.statCard('water_drop', 'blue', DataService.formatNumber(avgWater) + ' KL', 'Water Usage', '-2.4%', 'down', 4)}
       </div>
 
-      <div class="dashboard-charts">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Investment by Year (Live)</span>
-            <span class="badge badge-primary">Cloud Sync</span>
+      <div class="main-grid mb-8">
+        <div class="bg-surface-container-lowest p-8 rounded-2xl border border-white/5 shadow-sm">
+          <div class="flex justify-between items-center mb-10">
+            <h4 class="text-base font-semibold text-on-surface">Investment Trends</h4>
+            <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded uppercase">Cloud Sync</span>
           </div>
-          <div class="chart-container">
+          <div class="h-64">
             <canvas id="admin-inv-chart"></canvas>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Sector Distribution</span>
-            <span class="badge badge-success">Live Breakdown</span>
+        <div class="bg-surface-container-lowest p-8 rounded-2xl border border-white/5 shadow-sm">
+          <div class="flex justify-between items-center mb-8">
+            <h4 class="text-base font-semibold text-on-surface">Sector Distribution</h4>
           </div>
-          <div class="chart-container">
+          <div class="h-64">
             <canvas id="admin-sector-chart"></canvas>
           </div>
         </div>
       </div>
 
-      <div class="card mt-6">
-        <div class="card-header">
-          <span class="card-title">Top Industries by Investment</span>
-          <button class="btn btn-secondary btn-sm" onclick="Router.navigate('industry-list')">View All Industries</button>
+      <div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-8 py-6 flex justify-between items-center border-b border-surface-container-low">
+          <h4 class="text-base font-semibold text-on-surface">Top Industries by Investment</h4>
+          <button class="px-3 py-1.5 bg-surface-container-high text-on-primary-fixed font-medium rounded-xl text-xs transition-all hover:bg-surface-container-highest" onclick="Router.navigate('industry-list')">View All Units</button>
         </div>
-        <div class="card-body" style="padding:0">
-          <table class="data-table">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
             <thead>
-              <tr>
-                <th>Industry Name</th>
-                <th>Sector</th>
-                <th>Status</th>
-                <th>Investment</th>
+              <tr class="bg-surface-container-low/30">
+                <th class="px-8 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant">Industry Name</th>
+                <th class="px-6 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant">Sector</th>
+                <th class="px-6 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant">Status</th>
+                <th class="px-8 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant text-right">Investment</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-surface-container-low">
               ${industryData.slice(0, 5).map(ind => `
-                <tr>
-                  <td><strong>${ind.name}</strong></td>
-                  <td>${ind.sector}</td>
-                  <td>${Components.statusBadge(ind.status)}</td>
-                  <td>${DataService.formatCurrency(Math.random() * 50000000 + 10000000)}</td>
+                <tr class="hover:bg-surface-container-low/50 transition-colors">
+                  <td class="px-8 py-5">
+                    <div class="flex items-center gap-3">
+                      <div class="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-blue-600 text-base">precision_manufacturing</span>
+                      </div>
+                      <p class="text-sm font-semibold text-on-surface">${ind.name}</p>
+                    </div>
+                  </td>
+                  <td class="px-6 py-5 text-sm text-on-surface-variant">${ind.sector}</td>
+                  <td class="px-6 py-5">${Components.statusBadge(ind.status)}</td>
+                  <td class="px-8 py-5 text-sm font-medium text-right">${DataService.formatCurrency(Math.random() * 50000000 + 10000000)}</td>
                 </tr>
               `).join('')}
-              ${industryData.length === 0 ? '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--slate-400)">No data available in cloud</td></tr>' : ''}
+              ${industryData.length === 0 ? '<tr><td colspan="4" class="px-8 py-10 text-center text-on-surface-variant">No data available in cloud</td></tr>' : ''}
             </tbody>
           </table>
         </div>

@@ -20,57 +20,98 @@ async function renderReports() {
   const utilData = utilities.data || [];
   const turnData = turnover.data || [];
 
+  const tableRows = industryData.slice(0, 5).map(ind => {
+    const turn = turnData.find(t => t.industry_id === ind.id) || { annual_turnover: 0 };
+    const emp = empData.find(e => e.industry_id === ind.id) || { permanent_employees: 0, contract_employees: 0 };
+    return `
+      <tr class="hover:bg-surface-container-low/50 transition-colors">
+        <td class="px-8 py-5">
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+              <span class="material-symbols-outlined text-blue-600 text-base">precision_manufacturing</span>
+            </div>
+            <p class="text-sm font-semibold text-on-surface">${ind.name}</p>
+          </div>
+        </td>
+        <td class="px-6 py-5 text-sm text-on-surface-variant">${ind.sector}</td>
+        <td class="px-6 py-5 text-sm font-bold text-on-surface">${DataService.formatCurrency(turn.annual_turnover)}</td>
+        <td class="px-6 py-5 text-sm text-on-surface-variant">${emp.permanent_employees + emp.contract_employees}</td>
+        <td class="px-8 py-5 text-right">${Components.statusBadge(ind.status)}</td>
+      </tr>
+    `;
+  });
+
   const content = `
-    ${Components.pageHeader('Analytics Reports', 'Comprehensive performance analysis across the industrial park', `
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-secondary" onclick="window.print()">
-          <i data-lucide="printer"></i> Print Report
-        </button>
-        <button class="btn btn-primary">
-          <i data-lucide="file-text"></i> Export Full Analytics
-        </button>
-      </div>
+    ${Components.pageHeader('Analytics Reports', 'Real-time infrastructure and investment performance metrics.', `
+      <button class="px-5 py-2.5 bg-surface-container-high text-on-primary-fixed font-medium rounded-2xl flex items-center gap-2 hover:bg-surface-dim transition-all active:scale-95" onclick="window.print()">
+        <span class="material-symbols-outlined text-[1.2rem]">print</span> Print
+      </button>
+      <button class="px-5 py-2.5 bg-on-primary-fixed text-white font-medium rounded-2xl flex items-center gap-2 hover:bg-secondary transition-all active:scale-95">
+        <span class="material-symbols-outlined text-[1.2rem]">download</span> Export Full Data
+      </button>
     `)}
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="card">
-        <div class="card-header"><span class="card-title">Investment Growth (Overall)</span></div>
-        <div class="card-body"><canvas id="rep-inv-chart"></canvas></div>
+    <div class="grid grid-cols-12 gap-8 mb-8">
+      <!-- Investment Growth -->
+      <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-2xl p-8 border border-white/5 shadow-sm">
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h3 class="text-base font-semibold text-on-primary-fixed">Investment Growth</h3>
+            <p class="text-xs text-on-surface-variant">Annual institutional capital inflow (₹ millions)</p>
+          </div>
+          <span class="px-3 py-1 bg-secondary/10 text-secondary text-[0.6875rem] font-bold rounded-full uppercase tracking-wider">High Velocity</span>
+        </div>
+        <div class="h-80">
+          <canvas id="rep-inv-chart"></canvas>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Employment Gender Distribution</span></div>
-        <div class="card-body"><canvas id="rep-gen-chart"></canvas></div>
+
+      <!-- Gender Split -->
+      <div class="col-span-12 lg:col-span-4 bg-surface-container-lowest rounded-2xl p-8 border border-white/5 shadow-sm">
+        <h3 class="text-base font-semibold text-on-primary-fixed mb-1">Workforce Gender Split</h3>
+        <p class="text-xs text-on-surface-variant mb-8">Diversity metrics across industrial hubs</p>
+        <div class="h-64">
+          <canvas id="rep-gen-chart"></canvas>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Utility Consumption Benchmarking</span></div>
-        <div class="card-body"><canvas id="rep-benchmark-chart"></canvas></div>
+
+      <!-- Utility Benchmarking -->
+      <div class="col-span-12 lg:col-span-5 bg-surface-container-lowest rounded-2xl p-8 border border-white/5 shadow-sm">
+        <h3 class="text-base font-semibold text-on-primary-fixed mb-6">Utility Consumption Benchmarking</h3>
+        <div class="h-64">
+          <canvas id="rep-benchmark-chart"></canvas>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Production Capacity by Sector</span></div>
-        <div class="card-body"><canvas id="rep-sector-cap-chart"></canvas></div>
+
+      <!-- Production Capacity -->
+      <div class="col-span-12 lg:col-span-7 bg-surface-container-lowest rounded-2xl p-8 border border-white/5 shadow-sm">
+        <h3 class="text-base font-semibold text-on-primary-fixed mb-1">Production Capacity by Sector</h3>
+        <p class="text-xs text-on-surface-variant mb-6">Output per industrial park vs Target (%)</p>
+        <div class="h-64">
+          <canvas id="rep-sector-cap-chart"></canvas>
+        </div>
       </div>
     </div>
 
-    <div class="card mt-6">
-      <div class="card-header"><span class="card-title">Industry Performance Table</span></div>
-      <div class="card-body" style="padding:0">
-        <table class="data-table">
+    <!-- Performance Table -->
+    <div class="bg-surface-container-lowest rounded-2xl border border-white/5 shadow-sm overflow-hidden mb-12">
+      <div class="px-8 py-6 border-b border-surface-container-low flex justify-between items-center bg-surface-container-low/30">
+        <h3 class="text-lg font-bold tracking-tight text-on-surface">Industry Performance Analytics</h3>
+        <a class="text-secondary text-sm font-semibold hover:underline cursor-pointer" onclick="Router.navigate('industry-list')">View Full Directory</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
           <thead>
-            <tr><th>Industry</th><th>Sector</th><th>Turnover</th><th>Employees</th><th>Status</th></tr>
+            <tr class="bg-surface-container-low/50 text-rose-300">
+              <th class="px-8 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant">Industry</th>
+              <th class="px-6 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant">Sector</th>
+              <th class="px-6 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant">Turnover</th>
+              <th class="px-6 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant">Workforce</th>
+              <th class="px-8 py-4 text-[0.6875rem] font-semibold uppercase tracking-wider text-on-surface-variant text-right">Status</th>
+            </tr>
           </thead>
-          <tbody>
-            ${industryData.slice(0, 10).map(ind => {
-              const turn = turnData.find(t => t.industry_id === ind.id) || { annual_turnover: 0 };
-              const emp = empData.find(e => e.industry_id === ind.id) || { permanent_employees: 0, contract_employees: 0 };
-              return `
-              <tr>
-                <td><strong>${ind.name}</strong></td>
-                <td>${ind.sector}</td>
-                <td>${DataService.formatCurrency(turn.annual_turnover)}</td>
-                <td>${emp.permanent_employees + emp.contract_employees}</td>
-                <td>${Components.statusBadge(ind.status)}</td>
-              </tr>`;
-            }).join('')}
+          <tbody class="divide-y divide-surface-container-low">
+            ${tableRows.join('')}
           </tbody>
         </table>
       </div>
